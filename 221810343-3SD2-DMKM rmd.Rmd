@@ -45,7 +45,11 @@ library(psych)
 pairs.panels(data1)
 ```
 
-Terlihat dari plot bahwa korelasi antar variabel independennya lemah sedangkan korelasi variabel dipenden dan independen cukup kuat. Ada beberapa variabel independen yang tidak terlalu berkorelasi kuat dengan variabel dependen yakni variabel burning, urine pushing(dengan variabel nephritis), misturition pains(dengan variabel nephritis) temperature (dengan variabel inflamation of urinary), dan occurance of nausea (dengan variabel inflmation of urinary). namun disini saya tidak menghilangkan variabel tersebut.
+Terlihat dari plot bahwa korelasi antar variabel independennya lemah sedangkan korelasi variabel dipenden dan independen cukup kuat. 
+Ada beberapa variabel independen yang tidak terlalu berkorelasi kuat dengan variabel dependen yakni variabel burning, 
+urine pushing(dengan variabel nephritis), misturition pains(dengan variabel nephritis) temperature (dengan variabel inflamation of urinary), 
+dan occurance of nausea (dengan variabel inflmation of urinary). 
+namun disini saya tidak menghilangkan variabel tersebut.
 
 ## Membagi Data Training dan Testing
 
