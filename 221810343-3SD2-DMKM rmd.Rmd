@@ -1,0 +1,107 @@
+---
+title: "UTS DMKM"
+author: "221810343-Intan Kemala"
+date: "27/10/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+## Memuat Data
+```{r}
+library(readxl)
+data <- read_excel("E:/uts intan/datauts.xlsx")
+data<- as.data.frame(data)
+summary(data)
+data[,2:8]<- lapply(data[, 2:8], as.factor)
+summary(data)
+```
+
+
+```{r}
+data1<- data
+#melakukan recode
+data1$occurance_of_nausea<- factor(data1$occurance_of_nausea, levels=c('no','yes'), labels=c(0,1))
+data1$lumbar_pain<- factor(data1$lumbar_pain, levels=c('no','yes'), labels=c(0,1))
+data1$urine_pushing<- factor(data1$urine_pushing, levels=c('no','yes'), labels=c(0,1))
+data1$micturition_pains<- factor(data1$micturition_pains, levels=c('no','yes'), labels=c(0,1))
+data1$burning<- factor(data1$burning, levels=c('no','yes'), labels=c(0,1))
+
+#mengecek outlier
+boxplot(data1$temperature)
+
+#data numerik tidak memiliki outlier dan tidak terdapat missing value pada dataset
+```
+
+
+```{r}
+#Mengecek korelasi antar variabel
+library(psych)
+pairs.panels(data1)
+```
+
+Terlihat dari plot bahwa korelasi antar variabel independennya lemah sedangkan korelasi variabel dipenden dan independen cukup kuat. Ada beberapa variabel independen yang tidak terlalu berkorelasi kuat dengan variabel dependen yakni variabel burning, urine pushing(dengan variabel nephritis), misturition pains(dengan variabel nephritis) temperature (dengan variabel inflamation of urinary), dan occurance of nausea (dengan variabel inflmation of urinary). namun disini saya tidak menghilangkan variabel tersebut.
+
+## Membagi Data Training dan Testing
+
+```{r}
+library(tidyverse)
+library(caret)
+set.seed(123)
+trainingindex<- sample(1:nrow(data1), 0.7*nrow(data1))
+
+trainingset<- data1[trainingindex,]
+testset<- data1[-trainingindex,]
+dim(trainingset)
+dim(testset)
+
+traindata<- trainingset[, c(1:6)]
+inflammationclass<- trainingset[, c(7)]
+nephritisclass<- trainingset[, c(8)]
+train_control<- trainControl(method = "cv", number = 5, savePredictions = "all", classProbs = T)
+
+
+inflatestset<- testset[,-c(8)]
+neptestset<- testset[, -c(7)]
+```
+
+## Klasifikasi variabel Nephritis dengan Logistik Regression
+
+```{r}
+#Membangun model regresi logistik untuk variabel nephritis
+set.seed(344)
+lrmodel2<- train(traindata, nephritisclass, trControl = train_control, method = "glm")
+print(lrmodel2)
+summary(lrmodel2)
+
+#variabel penting
+varImp(lrmodel2)
+
+#melakukan prediksi
+lrpredic2<- predict(lrmodel2, newdata = neptestset)
+cmlr2<- confusionMatrix(lrpredic2, neptestset$nephritis)
+cmlr2
+```
+
+## Klasifikasi variabel Inflamation of Urinary dengan Logistik Regression
+
+```{r}
+#Membangun model regresi logistik untuk variabel inflammation of urinary
+set.seed(233)
+lrmodel1<- train(traindata, inflammationclass, trControl = train_control, method = "glm")
+print(lrmodel1)
+summary(lrmodel1)
+
+#variabel penting
+varImp(lrmodel1)
+
+#melakukan prediksi
+lrpredic1<- predict(lrmodel1, newdata = inflatestset)
+cmlr1<- confusionMatrix(lrpredic1, inflatestset$inflamation_of_urinary)
+cmlr1
+```
